@@ -1,5 +1,6 @@
-import Transaction from "../models/transaction.js";
-import Stripe from "stripe"
+import Transaction from "../models/transaction.js"
+import Stripe from 'stripe'
+
 const plans = [
     {
         _id: "basic",
@@ -22,38 +23,37 @@ const plans = [
         credits: 1000,
         features: ['1000 text generations', '500 image generations', '24/7 VIP support', 'Access to premium models', 'Dedicated account manager']
     }
-];
+]
 
-// API controller for getting all Plans
+// API Controller for getting all plans
 export const getPlans = async (req, res) => {
     try {
-        res.json({ success: true, plans });
+        res.json({ success: true, plans })
     } catch (error) {
-        res.json({ success: false, message: error.message });
+        res.json({ success: false, message: error.message })
     }
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
-// API controller for purchasing a plan
-export const purchasePlans = async (req, res) => {
+// API Controller for purchasing a plan
+export const purchasePlan = async (req, res) => {
     try {
         const { planId } = req.body;
         const userId = req.user._id;
         const plan = plans.find(plan => plan._id === planId);
         if (!plan) {
-            return res.json({ success: false, message: "Invalid Plan" });
-        };
-        // Create New Transaction
+            return res.json({ success: false, message: "Invalid Plan" })
+        }
+        // create new transaction
         const transaction = await Transaction.create({
             userId: userId,
             planId: plan._id,
             amount: plan.price,
             credits: plan.credits,
             isPaid: false
-        });
+        })
         const { origin } = req.headers;
-
         const session = await stripe.checkout.sessions.create({
             line_items: [
                 {
@@ -61,10 +61,9 @@ export const purchasePlans = async (req, res) => {
                         currency: "usd",
                         unit_amount: plan.price * 100,
                         product_data: {
-                            name: plan.name
+                            name: plan.name,
                         }
                     },
-
                     quantity: 1,
                 },
             ],
@@ -72,10 +71,10 @@ export const purchasePlans = async (req, res) => {
             success_url: `${origin}/loading`,
             cancel_url: `${origin}`,
             metadata: { transactionId: transaction._id.toString(), appId: 'quickgpt' },
-            expires_at: Math.floor(Date.now() / 1000) + 30 * 60, // Expires in 30 minutes
+            expires_at: Math.floor(Date.now() / 1000) + 30 * 60,//Expire in 30 minutes
         });
         res.json({ success: true, url: session.url })
     } catch (error) {
-        res.json({ success: false, message: error.message });
+        res.json({ success: false, message: error.message })
     }
 }

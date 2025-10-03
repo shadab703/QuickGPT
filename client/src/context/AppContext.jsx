@@ -2,8 +2,8 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { dummyChats, dummyUserData } from "../assets/assets";
 
-
 const AppContext = createContext();
+
 
 export const AppContextProvider = ({ children }) => {
     const navigate = useNavigate();
@@ -13,41 +13,40 @@ export const AppContextProvider = ({ children }) => {
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
 
     const fetchUser = async () => {
-        setUser(dummyUserData);
+        setUser(dummyUserData)
     }
+
     const fetchUsersChats = async () => {
-        setChats(dummyChats);
+        setChats(dummyChats)
         setSelectedChat(dummyChats[0])
     }
 
     useEffect(() => {
-        if (theme === "dark") {
+        if (theme === 'dark') {
             document.documentElement.classList.add('dark')
         } else {
             document.documentElement.classList.remove('dark')
         }
-        localStorage.setItem('theme', theme);
+        localStorage.getItem('theme', theme)
     }, [theme])
 
     useEffect(() => {
         if (user) {
-            fetchUsersChats();
+            fetchUsersChats()
         } else {
-            setChats([]);
+            setChats([])
             setSelectedChat(null)
         }
-
-    }, [user]);
+    }, [user])
 
     useEffect(() => {
         fetchUser()
-    }, []);
+    }, [])
 
     const value = {
-        navigate, user, setUser, chats,
-        setChats, selectedChat,
-        setSelectedChat, theme, fetchUser, setTheme
+        navigate, user, setUser, fetchUser, chats, setChats, selectedChat, setSelectedChat, theme, setTheme
     }
+
     return (
         <AppContext.Provider value={value}>
             {children}
@@ -55,4 +54,5 @@ export const AppContextProvider = ({ children }) => {
     )
 }
 
-export const useAppContext = () => useContext(AppContext);
+
+export const useAppContext = () => useContext(AppContext)
