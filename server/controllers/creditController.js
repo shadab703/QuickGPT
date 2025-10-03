@@ -51,7 +51,7 @@ export const purchasePlan = async (req, res) => {
             planId: plan._id,
             amount: plan.price,
             credits: plan.credits,
-            isPaid: true
+            isPaid: false
         })
         const { origin } = req.headers;
         const session = await stripe.checkout.sessions.create({
