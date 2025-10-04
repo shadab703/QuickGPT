@@ -20,7 +20,6 @@ app.post("/api/stripe", express.raw({ type: 'application/json' }), stripeWebhook
 app.use(cors());
 app.use(express.json());
 
-
 //Route
 app.get('/', (req, res) => {
     res.send("Server is Live!")
